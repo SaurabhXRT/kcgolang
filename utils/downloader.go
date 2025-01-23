@@ -1,15 +1,28 @@
 package utils
 
 import (
+	"bytes"
 	"errors"
+	"io"
 	"net/http"
 )
 
-func DownloadImage(url string) ([]byte, error) {
-	resp, err := http.Get(url)
-	if err != nil || resp.StatusCode != 200 {
+func DownloadImage(url string) (io.Reader, error) {
+	res, err := http.Get(url)
+	if err != nil || res.StatusCode != 200 {
 		return nil, errors.New("failed to download image")
 	}
-	defer resp.Body.Close()
-	return nil, nil
+	defer res.Body.Close()
+
+	var buf bytes.Buffer
+	_, err = io.Copy(&buf, res.Body)
+	if err != nil {
+		return nil, errors.New("failed to read image data")
+	}
+
+	return &buf, nil
+}
+
+func LogImagePerimeter(perimeter int) {
+	println("Calculated perimeter:", perimeter)
 }

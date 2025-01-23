@@ -1,39 +1,54 @@
 package jobs
 
 import (
+	"errors"
+	"image"
 	"sync"
-	
+
+	_ "image/jpeg" 
+	_ "image/png" 
+
 	"kcassignment/utils"
 )
-var jobMutex sync.Mutex
+
+var jobProcessingMutex sync.Mutex
 
 func ProcessJob(job *Job) {
 	for _, visit := range job.Visits {
 		for _, imageURL := range visit.ImageURLs {
 			err := ProcessImage(imageURL)
 			if err != nil {
-				jobMutex.Lock()
+				jobProcessingMutex.Lock()
 				job.Errors = append(job.Errors, ErrorDetail{
 					StoreID: visit.StoreID,
 					Error:   err.Error(),
 				})
 				job.Status = "failed"
-				jobMutex.Unlock()
+				jobProcessingMutex.Unlock()
 				return
 			}
 		}
 	}
 
-	jobMutex.Lock()
+	jobProcessingMutex.Lock()
 	job.Status = "completed"
-	jobMutex.Unlock()
+	jobProcessingMutex.Unlock()
 }
 
 func ProcessImage(url string) error {
-	_, err := utils.DownloadImage(url)
+	
+	imageData, err := utils.DownloadImage(url)
 	if err != nil {
-		return err
+		return errors.New(err.Error())
 	}
+	img, _, err := image.Decode(imageData)
+	if err != nil {
+		return errors.New("failed to decode image: " + err.Error())
+	}
+	bounds := img.Bounds()
+	perimeter := 2 * (bounds.Dx() + bounds.Dy())
+
+	utils.LogImagePerimeter(perimeter)
 
 	utils.SleepRandom()
 	return nil

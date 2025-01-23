@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type HealthResponse struct {
+type ServerResponse struct {
 	Message string `json:"message"`
 	Status  string `json:"status"`
 }
@@ -19,8 +19,8 @@ func main() {
 
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		response := HealthResponse{
-			Message: "Server is running",
+		response := ServerResponse{
+			Message: " kcassignment Server is running",
 			Status:  "ok",
 		}
 		json.NewEncoder(w).Encode(response)

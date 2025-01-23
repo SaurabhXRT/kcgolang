@@ -27,9 +27,12 @@ func GetJobStatusHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	job := jobs.GetJob(jobID)
-	if job == nil {
-		http.Error(w, `{"error": "job not found"}`, http.StatusBadRequest)
+	jobMutex.Lock()
+	job, exists := jobsMap[jobID]
+	jobMutex.Unlock()
+
+	if !exists {
+		http.Error(w, `{"error": "job not found"}`, http.StatusNotFound)
 		return
 	}
 

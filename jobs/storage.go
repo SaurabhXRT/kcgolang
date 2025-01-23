@@ -21,19 +21,13 @@ type ErrorDetail struct {
 	Error   string `json:"error"`
 }
 
-var jobs = make(map[int]*Job)
+//var jobs = make(map[int]*Job)
 
 func CreateJob(jobID int, visits []Visit) *Job {
-	job := &Job{
-		ID:        jobID,
-		Visits:    visits,
-		Status:    "ongoing",
-		CreatedAt: time.Now(),
+	return &Job{
+		ID:     jobID,
+		Status: "ongoing",
+		Visits: visits,
+		Errors: []ErrorDetail{},
 	}
-	jobs[jobID] = job
-	return job
-}
-
-func GetJob(jobID int) *Job {
-	return jobs[jobID]
 }
